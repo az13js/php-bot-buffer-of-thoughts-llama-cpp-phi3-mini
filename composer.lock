@@ -1,0 +1,49 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "ee4f7fc208cb7b35f7ac1fab7ad68b18",
+    "packages": [
+        {
+            "name": "az13js/php-phi3-llama-cpp",
+            "version": "0.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://gitee.com/az13js/php-phi3-llama-cpp",
+                "reference": "6f06d72514a7360bf7d0069449b810b5fbf9a7d1"
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "function.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "az13js",
+                    "email": "1654602334@qq.com"
+                }
+            ],
+            "description": "Use llama.cpp, run Phi3-mini.",
+            "time": "2024-08-19T07:51:27+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}

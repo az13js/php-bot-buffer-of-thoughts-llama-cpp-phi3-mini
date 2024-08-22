@@ -1,0 +1,5 @@
+{
+    "require": {
+        "az13js/php-phi3-llama-cpp": "^0.0.3"
+    }
+}
