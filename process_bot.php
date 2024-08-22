@@ -118,8 +118,8 @@ QUESTION_PROMPT;
  */
 function getThoughtTemplateTitle(string $thoughtTemplate): string
 {
-    $start = '<title begin>';
-    $end = '<title end>';
+    $start = '[title begin]';
+    $end = '[title end]';
 
     $systemPrompt = <<<SYSTEM_PROMPT_TITLE
 You are a writer who frequently searches for information and writes titles and content for it. You are using your expertise to solve problems for others.
@@ -128,9 +128,9 @@ SYSTEM_PROMPT_TITLE;
     $prompt = <<<QUESTION_PROMPT_TITLE
 Write a title for the following thought template:
 
-<thought template begin>
+[template begin]
 $thoughtTemplate
-<thought template end>
+[template end]
 
 For ease of searching, the title needs to be appropriate. The title needs to start with `$start` and end with `$end`. Just tell me the title, No need to say anything else.
 QUESTION_PROMPT_TITLE;
@@ -217,6 +217,8 @@ function selectThoughtTemplate(string $question, array $thoughtTemplates)
         return "($id) {$thoughtTemplate->title}";
     }, $thoughtTemplates);
     $itemsBlock = implode(PHP_EOL, $items);
+    ++$id;
+    $itemsBlock .= (PHP_EOL . "($id) No available options");
 
     $prompt = <<<SELECT_TEMPLE
 There is currently a question:
@@ -229,11 +231,11 @@ The following options provide some articles that may be used to guide me in solv
 $itemsBlock
 
 Tell me which option is the most suitable [For example: (1). Your answer, option are enclosed in parentheses '()'. No need to say anything else]
-If there are no suitable options, please reply directly: <<<no suitable options>>>. [begin with '<<<' and end with '>>>', content inside is `no suitable options`, no need to say anything else]
+If there are no available options, please reply directly: <<<no available options>>>. [begin with '<<<' and end with '>>>', content inside is `no available options`, no need to say anything else]
 SELECT_TEMPLE;
 
     $result = runModel($prompt);
-    if (strpos($result, '<<<no suitable options>>>') !== false) {
+    if (strpos($result, '<<<no available options>>>') !== false) {
         return null;
     }
     for ($i = count($thoughtTemplates); $i > 0; $i--) {
@@ -254,6 +256,13 @@ SELECT_TEMPLE;
  */
 function selectBestThoughtTemplate(string $question, ThoughtTemplate $thoughtTemplate1, ThoughtTemplate $thoughtTemplate2): ThoughtTemplate
 {
+    if (mt_rand() % 2 === 0) {
+        $a = $thoughtTemplate1;
+        $b = $thoughtTemplate2;
+    } else {
+        $a = $thoughtTemplate2;
+        $b = $thoughtTemplate1;
+    }
     $prompt = <<<SELECT_BEST_TEMPLE
 There is currently a question:
 
@@ -263,28 +272,28 @@ question end
 
 The following options provide some articles that may be used to guide me in solving problems:
 
-<<1>> {$thoughtTemplate1->title}
+<<1>> {$a->title}
 
-{$thoughtTemplate1->content}
+{$a->content}
 
-<<2>> {$thoughtTemplate2->title}
+<<2>> {$b->title}
 
-{$thoughtTemplate2->content}
+{$b->content}
 
 Which option is the most suitable for solving the problem? Is `<<1>>` or `<<2>>` ? You must choose an answer from among them.
 Your answer, should begin with '<<' and end with '>>'. If there are no suitable options, please reply directly: <<no suitable options>>. No need to say anything else.
 SELECT_BEST_TEMPLE;
     $result = runModel($prompt);
     if (strpos($result, '<<no suitable options>>') !== false) {
-        return mt_rand() % 2 === 0 ? $thoughtTemplate1 : $thoughtTemplate2;
+        return mt_rand() % 2 === 0 ? $a : $b;
     }
-    if (strpos($result, '<<1>>') !== false) {
-        return $thoughtTemplate1;
+    if (strpos($result, '<<1>>') !== false && strpos($result, '<<2>>') === false) {
+        return $a;
     }
-    if (strpos($result, '<<2>>') !== false) {
-        return $thoughtTemplate2;
+    if (strpos($result, '<<2>>') !== false && strpos($result, '<<1>>') === false) {
+        return $b;
     }
-    return mt_rand() % 2 === 0 ? $thoughtTemplate1 : $thoughtTemplate2;
+    return mt_rand() % 2 === 0 ? $a : $b;
 }
 
 $question = <<<QUESTION
