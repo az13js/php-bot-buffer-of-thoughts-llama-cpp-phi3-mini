@@ -34,9 +34,7 @@ define('THOUGHT_TEMPLATES_DIR', 'thought_templates') || die('THOUGHT_TEMPLATES_D
 function problemDistillation(string $question): string
 {
     $distill = <<<DISTILL_PROMPT
-You are the AI system of an information consulting company, guiding users on how to extract all key information from questions for solving problems.
-
-Important: Do not answer user's questions! You just need to tell the user all key informations from user's questions/problems or what user says.
+You are a highly intelligent AI system. You need to extract key information, boundary conditions, and constraints from user questions. Last but not least, do not answer user's questions, don't say unnecessary content.
 DISTILL_PROMPT;
 
     return runModel($question, $distill);
@@ -64,7 +62,7 @@ techniques end
 SYSTEM_PROMPT;
     } else {
         $system = <<<SYSTEM_PROMPT_WITH_TEMPLATE
-You are an AI adept at using the following techniques to extract information from user questions and answer them empirically using the following experience.
+You adept at using the following techniques to extract information from user questions and answer them empirically using the following experience.
 
 techniques begin
 
@@ -230,14 +228,11 @@ question end
 The following options provide some articles that may be used to guide me in solving problems:
 $itemsBlock
 
-Tell me which option is the most suitable [For example: (1). Your answer, option are enclosed in parentheses '()'. No need to say anything else]
-If there are no available options, please reply directly: <<<no available options>>>. [begin with '<<<' and end with '>>>', content inside is `no available options`, no need to say anything else]
+Tell me which option is the most suitable. You can only choose one option. [Your answer, option are enclosed in parentheses '()', For example: (1).]
+The important thing is that you just need to choose, don't say unnecessary content, and don't explain why.
 SELECT_TEMPLE;
 
     $result = runModel($prompt);
-    if (strpos($result, '<<<no available options>>>') !== false) {
-        return null;
-    }
     for ($i = count($thoughtTemplates); $i > 0; $i--) {
         if (strpos($result, "($i)") !== false) {
             return $thoughtTemplates[$i - 1];
@@ -275,13 +270,16 @@ The following options provide some articles that may be used to guide me in solv
 <<1>> {$a->title}
 
 {$a->content}
+End of <<1>>.
 
 <<2>> {$b->title}
 
 {$b->content}
+End of <<2>>.
 
 Which option is the most suitable for solving the problem? Is `<<1>>` or `<<2>>` ? You must choose an answer from among them.
-Your answer, should begin with '<<' and end with '>>'. If there are no suitable options, please reply directly: <<no suitable options>>. No need to say anything else.
+Your answer, should begin with '<<' and end with '>>'. If there are no suitable options, please reply directly: <<no suitable options>>.
+Just select option, don't say unnecessary content, don't explain why.
 SELECT_BEST_TEMPLE;
     $result = runModel($prompt);
     if (strpos($result, '<<no suitable options>>') !== false) {
