@@ -215,9 +215,9 @@ def selectBestThoughtTemplate(question: str, thoughtTemplate1: ThoughtTemplate, 
         # 随机返回一个
         return a
     else:
-        if f'{begin}1{end}' not in info:
+        if f'{begin}1{end}' in info:
             return a
-        if f'{begin}2{end}' not in info:
+        if f'{begin}2{end}' in info:
             return b
     # 随机返回一个
     return a
