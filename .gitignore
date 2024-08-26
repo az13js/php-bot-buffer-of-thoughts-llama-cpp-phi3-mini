@@ -1,3 +1,4 @@
 /vendor
 /thought_templates
 .*.runModel.*.txt
+/env
