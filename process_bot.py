@@ -17,19 +17,20 @@ import argparse
 
 from typing import List, Optional
 
+if 'BAIDU_MODEL' not in os.environ:
+    os.environ['BAIDU_MODEL'] = 'ERNIE-Lite-8K'
+
+SDK = qianfan.ChatCompletion()
+
 def runModel(userPrompt: str, systemPrompt: str = '') -> str:
     '''调用文心一言回答问题。
     userPrompt: 用户的问题。
     systemPrompt: 系统提示。可选，默认空字符串。
     return: 回答。
     '''
-    modelName: str = 'ERNIE-Lite-8K'
-    if 'BAIDU_MODEL' in os.environ:
-        modelName = os.environ['BAIDU_MODEL']
 
-    sdk = qianfan.ChatCompletion()
-    resp = sdk.do(
-        model=modelName,
+    resp = SDK.do(
+        model=os.environ['BAIDU_MODEL'],
         messages=[{'role':'user','content':userPrompt}],
         system=systemPrompt
     )
