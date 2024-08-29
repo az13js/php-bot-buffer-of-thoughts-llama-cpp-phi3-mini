@@ -22,6 +22,8 @@ if 'BAIDU_MODEL' not in os.environ:
 
 SDK = qianfan.ChatCompletion()
 
+TEMPLATE_DIR = os.path.dirname(os.path.abspath(__file__)) + os.sep + 'thought_templates'
+
 def runModel(userPrompt: str, systemPrompt: str = '') -> str:
     '''调用文心一言回答问题。
     userPrompt: 用户的问题。
@@ -130,12 +132,12 @@ def getAllThoughtTemplates() -> List[ThoughtTemplate]:
     return: List[ThoughtTemplate]
     '''
     # 如果本地文件夹不存在，则创建
-    if not os.path.exists('thought_templates'):
-        os.mkdir('thought_templates')
+    if not os.path.exists(TEMPLATE_DIR):
+        os.mkdir(TEMPLATE_DIR)
 
     thoughtTemplates = []
-    for fileName in os.listdir('thought_templates'):
-        filePath = os.path.join('thought_templates', fileName)
+    for fileName in os.listdir(TEMPLATE_DIR):
+        filePath = os.path.join(TEMPLATE_DIR, fileName)
         with open(filePath, 'r', encoding='utf-8') as f:
             content = json.loads(f.read())
             thoughtTemplates.append(ThoughtTemplate(content['title'], content['content'], filePath))
@@ -223,13 +225,7 @@ def selectBestThoughtTemplate(question: str, thoughtTemplate1: ThoughtTemplate, 
     # 随机返回一个
     return a
 
-if '__main__' == __name__:
-    parser = argparse.ArgumentParser(description='文心一言BoT')
-    parser.add_argument('-p', type=str, help='问题', default='编写Python代码寻找函数 x^3+2*x-10 在区间 [0,100] 的最大值并输出对应的横坐标 x')
-    args = parser.parse_args() 
-
-    question = args.p
-
+def run(question: str) -> str:
     thoughtTemplates = getAllThoughtTemplates()
     thoughtTemplate = selectThoughtTemplate(question, thoughtTemplates)
 
@@ -241,7 +237,7 @@ if '__main__' == __name__:
     newThoughtTemplate = ThoughtTemplate(thoughtTemplateTitle, thoughtTemplateContent)
     if thoughtTemplate is None:
         fileName = str(len(thoughtTemplates)) + '.json'
-        filePath = os.path.join('thought_templates', fileName)
+        filePath = os.path.join(TEMPLATE_DIR, fileName)
         with open(filePath, 'w') as f:
             json.dump({'title': newThoughtTemplate.title, 'content': newThoughtTemplate.content}, f)
     else:
@@ -250,5 +246,12 @@ if '__main__' == __name__:
         filePath = bestThoughtTemplate.filePath
         with open(filePath, 'w') as f:
             json.dump({'title': bestThoughtTemplate.title, 'content': bestThoughtTemplate.content}, f)
+    return answer
 
-    print(answer)
+if '__main__' == __name__:
+    parser = argparse.ArgumentParser(description='文心一言BoT')
+    parser.add_argument('-p', type=str, help='问题', default='编写Python代码寻找函数 x^3+2*x-10 在区间 [0,100] 的最大值并输出对应的横坐标 x')
+    args = parser.parse_args() 
+
+    question = args.p
+    print(run(question))
